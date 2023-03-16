@@ -10,6 +10,8 @@ public class PlayerMove : MonoBehaviour
     float yVelocity = 0; //수직 속력 변수
     public float jumpPower = 10f;
     public bool isJumping = false; //점프 상태변수
+
+    int hp = 100; //플레이어 체력 변수
     // Start is called before the first frame update
     void Start()
     {
@@ -49,9 +51,13 @@ public class PlayerMove : MonoBehaviour
         }
 
         yVelocity += gravity * Time.deltaTime; //캐릭터 수직속도에 중력 값을 적용
-        Debug.Log(yVelocity.ToString());
+        //Debug.Log(yVelocity.ToString());
         dir.y = yVelocity; //중력값을 적용한 수직속도 할당
         //이동 속도에 맞춰 이동
         cc.Move(dir*moveSpeed*Time.deltaTime);
+    }
+    public void DamageAction(int damage)
+    {
+        hp -= damage; //에너미의 공격력 만큼 플레이어 체력을 감소
     }
 }
