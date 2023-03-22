@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class PlayerMove : MonoBehaviour
 {
@@ -11,8 +13,12 @@ public class PlayerMove : MonoBehaviour
     public float jumpPower = 10f;
     public bool isJumping = false; //점프 상태변수
 
-    int hp = 100; //플레이어 체력 변수
-    // Start is called before the first frame update
+    int hp = 20; //플레이어 체력 변수
+    int maxHP = 20; //플레이어의 최대 체력
+    public Slider hpSlider; //hp 슬라이더 변수
+
+    public GameObject hitEffect; //좀비에게 맞을 때
+
     void Start()
     {
         //캐릭터 컨트롤러 컴포넌트 받아오기
@@ -22,6 +28,12 @@ public class PlayerMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //게임 상태가 게임 중 상태가 아니라면 Update()를 종료 시켜 사용자 입력 못받게함
+        if (GameManager.Instance.gState != GameManager.GameState.Run)
+        {
+            return;
+        }
+
         //사용자 입력을 받는다.
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
@@ -55,9 +67,23 @@ public class PlayerMove : MonoBehaviour
         dir.y = yVelocity; //중력값을 적용한 수직속도 할당
         //이동 속도에 맞춰 이동
         cc.Move(dir*moveSpeed*Time.deltaTime);
+
+        hpSlider.value = (float)hp/(float)maxHP;
     }
     public void DamageAction(int damage)
     {
         hp -= damage; //에너미의 공격력 만큼 플레이어 체력을 감소
+        if (hp > 0)
+        {
+            StartCoroutine(PlayHitEffect());
+        }
+      
+    }
+
+    IEnumerator PlayHitEffect()
+    {
+        hitEffect.SetActive(true);
+        yield return new WaitForSeconds(0.3f);
+        hitEffect.SetActive(false);
     }
 }

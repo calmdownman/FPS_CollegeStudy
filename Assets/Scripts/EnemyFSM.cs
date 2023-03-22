@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyFSM : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class EnemyFSM : MonoBehaviour
     public float moveDistance = 20f; //이동 가능 범위
     int hp = 15; //좀비의 현재 체력
     int maxHp = 15; //좀비의 최대 체력
+    public Slider hpSlider;
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +53,7 @@ public class EnemyFSM : MonoBehaviour
             //case EnemyState.Damaged: Damaged(); break;
             //case EnemyState.Die: Die(); break;
         }
+        hpSlider.value = (float)hp / (float)maxHp;
     }
 
     void Idle() //대기 상태 함수, 플레이어가 8미터 안으로 들어오는지 검사
@@ -122,6 +125,11 @@ public class EnemyFSM : MonoBehaviour
 
     public void HitEnemy(int hitPower) //좀비가 맞았을 때 호출되는 함수
     {
+        //피격, 사망, 복귀 상태라면 아무런 처리를 하지 않는다
+        if(m_State== EnemyState.Damaged || m_State == EnemyState.Die || 
+           m_State == EnemyState.Return) {return;}
+          
+
         hp -= hitPower;
         if (hp > 0) //총에 맞았을 때 좀비 체력이 0보다 크면
         {
@@ -133,7 +141,7 @@ public class EnemyFSM : MonoBehaviour
         {
             m_State = EnemyState.Die;
             print("상태 전환: Any State -> Die");
-            //Die();
+            Die();
         }
     }
 
@@ -147,5 +155,20 @@ public class EnemyFSM : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         m_State = EnemyState.Move;
         print("상태 전환:Damaged -> Move");
+    }
+
+    void Die()
+    {
+        StopAllCoroutines(); //기존에 실행되고 있던 코루틴함수들 모두 종료
+        StartCoroutine(DieProcess());
+    }
+
+    IEnumerator DieProcess()
+    {
+        //오브젝트는 SetActive()로 비/활성화, 컴포넌트 enabled로 비/활성화
+        cc.enabled = false; //좀비 캐릭터컨트롤러 비활성화
+        yield return new WaitForSeconds(2f);
+        print("소멸");
+        Destroy(gameObject);
     }
 }
