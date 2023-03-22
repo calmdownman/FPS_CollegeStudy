@@ -27,6 +27,8 @@ public class EnemyFSM : MonoBehaviour
 
     Vector3 originPos; //에너미의 초기위치
     public float moveDistance = 20f; //이동 가능 범위
+    int hp = 15; //좀비의 현재 체력
+    int maxHp = 15; //좀비의 최대 체력
 
     // Start is called before the first frame update
     void Start()
@@ -46,8 +48,8 @@ public class EnemyFSM : MonoBehaviour
             case EnemyState.Move: Move(); break;
             case EnemyState.Attack: Attack(); break;
             case EnemyState.Return: Return(); break;
-           // case EnemyState.Damaged: Damaged(); break;
-           // case EnemyState.Die: Die(); break;
+            //case EnemyState.Damaged: Damaged(); break;
+            //case EnemyState.Die: Die(); break;
         }
     }
 
@@ -69,10 +71,10 @@ public class EnemyFSM : MonoBehaviour
         //플레이어가 공격범위 밖이라면 플레이어를 향해 이동
         else if (Vector3.Distance(transform.position, player.position) > attackDistance)
         {
-            Vector3 dir = (player.position - transform.position).normalized;
-            cc.Move(dir * moveSpeed * Time.deltaTime);
+            Vector3 dir = (player.position - transform.position).normalized; //이동 방향 설정
+            cc.Move(dir * moveSpeed * Time.deltaTime); //이동
         }
-        else //그렇지 않다면 현재 상태를 공격으로 전환
+        else //2미터 이내라면 현재 상태를 공격으로 전환
         {
             m_State= EnemyState.Attack;
             print("상태 전환:Move->Attack");
@@ -93,7 +95,7 @@ public class EnemyFSM : MonoBehaviour
                 currentTime = 0;
             }
         }
-        else
+        else //공격범위 밖이라면 재추격 실시
         {
             m_State = EnemyState.Move;
             print("상태전환: Attack -> Move");
@@ -107,13 +109,43 @@ public class EnemyFSM : MonoBehaviour
         if (Vector3.Distance(transform.position, originPos) > 0.1f)
         {
             Vector3 dir = (originPos- transform.position).normalized;
-            cc.Move(dir*moveSpeed * Time.deltaTime);
+            cc.Move(dir * moveSpeed * Time.deltaTime);
         }
         else
         {
             transform.position= originPos;
             m_State= EnemyState.Idle;
+            hp = maxHp;
             print("상태 전환: Return->Idle");
         }
+    }
+
+    public void HitEnemy(int hitPower) //좀비가 맞았을 때 호출되는 함수
+    {
+        hp -= hitPower;
+        if (hp > 0) //총에 맞았을 때 좀비 체력이 0보다 크면
+        {
+            m_State = EnemyState.Damaged;
+            print("상태 전환: Any State -> Damaged");
+            Damaged();
+        }
+        else //0보다 작다면
+        {
+            m_State = EnemyState.Die;
+            print("상태 전환: Any State -> Die");
+            //Die();
+        }
+    }
+
+    void Damaged()
+    {
+        StartCoroutine(DamageProcess());
+    }
+
+    IEnumerator DamageProcess()
+    {
+        yield return new WaitForSeconds(0.5f);
+        m_State = EnemyState.Move;
+        print("상태 전환:Damaged -> Move");
     }
 }

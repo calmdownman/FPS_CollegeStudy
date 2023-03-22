@@ -6,13 +6,6 @@ public class PlayerRotate : MonoBehaviour
 {
     public float rotSpeed = 200f;
     float mx = 0; //회전값 변수(Y축만 회전)
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         float mouse_X = Input.GetAxis("Mouse Y");

@@ -10,7 +10,7 @@ public class PlayerFire : MonoBehaviour
 
     public GameObject bulletEffect; //피격 이펙트 오브젝트
     ParticleSystem ps; //피격 이펙트 파티클 시스템
-    // Start is called before the first frame update
+    public int weaponPower = 5;
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -40,11 +40,20 @@ public class PlayerFire : MonoBehaviour
 
             if(Physics.Raycast(ray, out hitInfo))
             {
-                //피격 이펙트의 위치를 레이와 부딪힌 지점으로 이동
-                bulletEffect.transform.position = hitInfo.point;
-                //피격 이펙트의 forward 방향을 레이가 부딪힌 지점의 법선 벡터와 일치시킨다
-                bulletEffect.transform.forward = hitInfo.normal;
-                ps.Play(); //피격 이펙트 플레이
+                //레이가 부딪히 오브젝트가 Enemy라면
+                if(hitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Enemy")) 
+                {
+                    EnemyFSM eFSM = hitInfo.transform.GetComponent<EnemyFSM>();
+                    eFSM.HitEnemy(weaponPower);
+                } 
+                else
+                {
+                    //피격 이펙트의 위치를 레이와 부딪힌 지점으로 이동
+                    bulletEffect.transform.position = hitInfo.point;
+                    //피격 이펙트의 forward 방향을 레이가 부딪힌 지점의 법선 벡터와 일치시킨다
+                    bulletEffect.transform.forward = hitInfo.normal;
+                    ps.Play(); //피격 이펙트 플레이
+                }
             }
         }
     }
