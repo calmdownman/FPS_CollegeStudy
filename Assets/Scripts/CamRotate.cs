@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CamRotate : MonoBehaviour
 {
-    public float rotSpeed = 200f; //회전 혹도 변수
+    public float rotSpeed = 200f; //회전 속도 변수
     // Start is called before the first frame update
     float mx = 0; //회전 값 변수
     float my = 0; 
