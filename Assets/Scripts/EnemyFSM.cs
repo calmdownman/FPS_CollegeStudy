@@ -153,12 +153,14 @@ public class EnemyFSM : MonoBehaviour
         {
             m_State = EnemyState.Damaged;
             print("상태 전환: Any State -> Damaged");
+            anim.SetTrigger("Damaged");
             Damaged();
         }
         else //0보다 작다면
         {
             m_State = EnemyState.Die;
             print("상태 전환: Any State -> Die");
+            anim.SetTrigger("Die");
             Die();
         }
     }
@@ -170,7 +172,8 @@ public class EnemyFSM : MonoBehaviour
 
     IEnumerator DamageProcess()
     {
-        yield return new WaitForSeconds(0.5f);
+        //피격 애니메이션 재생 시간만큼 대기
+        yield return new WaitForSeconds(1f);
         m_State = EnemyState.Move;
         print("상태 전환:Damaged -> Move");
     }

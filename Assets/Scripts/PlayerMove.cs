@@ -13,16 +13,19 @@ public class PlayerMove : MonoBehaviour
     public float jumpPower = 10f;
     public bool isJumping = false; //점프 상태변수
 
-    int hp = 20; //플레이어 체력 변수
+    public int hp = 20; //플레이어 체력 변수
     int maxHP = 20; //플레이어의 최대 체력
     public Slider hpSlider; //hp 슬라이더 변수
 
     public GameObject hitEffect; //좀비에게 맞을 때
+    Animator anim;
 
     void Start()
     {
-        //캐릭터 컨트롤러 컴포넌트 받아오기
+       //캐릭터 컨트롤러 컴포넌트 받아오기
        cc = GetComponent<CharacterController>();
+       //Player의 자식 오브젝트에 있는 애니메이터 컴포넌트 할당
+       anim = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -40,6 +43,7 @@ public class PlayerMove : MonoBehaviour
         //이동 방향 설정
         Vector3 dir = new Vector3(h,0,v);
         dir = dir.normalized;
+        anim.SetFloat("MoveMotion", dir.magnitude);
         //메인 카메라를 기준으로 방향을 변환한다
         dir = Camera.main.transform.TransformDirection(dir);
         //이동 속도에 맞춰 이동한다
