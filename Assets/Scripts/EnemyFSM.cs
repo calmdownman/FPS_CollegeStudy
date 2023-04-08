@@ -27,10 +27,13 @@ public class EnemyFSM : MonoBehaviour
     public int attackPower = 3;
 
     Vector3 originPos; //에너미의 초기위치
+    Quaternion oringRot; //에너미의 초기회전
     public float moveDistance = 20f; //이동 가능 범위
     int hp = 15; //좀비의 현재 체력
     int maxHp = 15; //좀비의 최대 체력
     public Slider hpSlider;
+
+    Animator anim;
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +42,9 @@ public class EnemyFSM : MonoBehaviour
         player = GameObject.Find("Player").transform;
         cc = GetComponent<CharacterController>();
         originPos = transform.position;
+        oringRot = transform.rotation;
+        //자식 오브젝트의 애니터메이터 컴포넌트 받아오기
+        anim = transform.GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -62,6 +68,7 @@ public class EnemyFSM : MonoBehaviour
         {
             m_State= EnemyState.Move;
             print("상태 전환: Idle->Move");
+            anim.SetTrigger("IdleToMove");
         }
     }
     void Move()
@@ -76,12 +83,14 @@ public class EnemyFSM : MonoBehaviour
         {
             Vector3 dir = (player.position - transform.position).normalized; //이동 방향 설정
             cc.Move(dir * moveSpeed * Time.deltaTime); //이동
+            transform.forward = dir; //플레이어를 향해 방향 전환
         }
         else //2미터 이내라면 현재 상태를 공격으로 전환
         {
             m_State= EnemyState.Attack;
             print("상태 전환:Move->Attack");
             currentTime= attackDelay; //누적시간을 미리 2초로 변경하여 접근 시 바로 공격
+            anim.SetTrigger("MoveToAttackDelay");
         }
     }
 
@@ -92,10 +101,9 @@ public class EnemyFSM : MonoBehaviour
             currentTime += Time.deltaTime;
             if (currentTime > attackDelay)
             {
-                //플레이어의 데미지 함수 실행
-                player.GetComponent<PlayerMove>().DamageAction(attackPower);
                 print("공격");
                 currentTime = 0;
+                anim.SetTrigger("StartAttack");
             }
         }
         else //공격범위 밖이라면 재추격 실시
@@ -103,7 +111,14 @@ public class EnemyFSM : MonoBehaviour
             m_State = EnemyState.Move;
             print("상태전환: Attack -> Move");
             currentTime= 0;
+            anim.SetTrigger("AttackToMove");
         }
+    }
+
+    public void AttackAction()
+    {
+        //플레이어의 데미지 함수 실행
+        player.GetComponent<PlayerMove>().DamageAction(attackPower);
     }
 
     void Return()
@@ -113,13 +128,16 @@ public class EnemyFSM : MonoBehaviour
         {
             Vector3 dir = (originPos- transform.position).normalized;
             cc.Move(dir * moveSpeed * Time.deltaTime);
+            transform.forward = dir;
         }
         else
         {
             transform.position= originPos;
+            transform.rotation = oringRot;
             m_State= EnemyState.Idle;
             hp = maxHp;
             print("상태 전환: Return->Idle");
+            anim.SetTrigger("MoveToIdle"); //대기 애니메이션 실행
         }
     }
 
