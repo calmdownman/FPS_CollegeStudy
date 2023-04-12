@@ -13,7 +13,7 @@ public class PlayerRotate : MonoBehaviour
             return;
         }
 
-        float mouse_X = Input.GetAxis("Mouse Y");
+        float mouse_X = Input.GetAxis("Mouse X");
         //회전 값 변수에 마우스 입력 값만큼 미리 누적 시킨다.
         mx += mouse_X * rotSpeed * Time.deltaTime;
         //회전 방향으로 Y축 회전을 한다.
